@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
 import Head from 'next/head'
 import SubscribeButton from '../components/SubscribeButton';
 import { stripe } from '../services/stripe';
@@ -39,7 +39,7 @@ export default function Home({ product }: HomeProps) {
 }
 
 // servidor node do next:
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const price = await stripe.prices.retrieve('price_1KYB62Jdhmo0c4H4zeNiorEl', {
     expand: ['product']
   })
@@ -55,6 +55,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       product
-    }
+    },
+    // a pagina será atualizada pelo next tirando ela estatica em 24 horas
+    revalidate: 60 * 60 * 24, // 24 horas
   }
 }
