@@ -35,16 +35,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         try {
             event = stripe.webhooks.constructEvent(buf, secret, process.env.STRIPE_WEBHOOK_SECRET)
-        } catch {
-            return res.status(400).send(`Webhook error`);
+        } catch (err) {
+            return res.status(400).send(`Webhook error: ${err.message}`);
         }
 
         const { type } = event;
 
-        if (relevantEvents.has(type)) {
+        if (!relevantEvents.has(type)) {
             console.log('Evento recebido', event)
         }
-        res.status(200).json({ received: true })
+        res.json({ received: true })
 
 
     } else {
