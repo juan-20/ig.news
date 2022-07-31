@@ -1,15 +1,12 @@
-import { signIn, useSession } from 'next-auth/client';
-import React from 'react';
+import { useSession, signIn } from 'next-auth/client';
+import { useRouter } from 'next/router';
 import { api } from '../../services/api';
 import { getStripeJs } from '../../services/stripe-js';
-import styles from './styles.module.scss'
+import styles from './styles.module.scss';
 
-interface SubscribeButtonProps {
-  priceId: string;
-}
-
-function SubscribeButton({ priceId }: SubscribeButtonProps) {
+export function SubscribeButton() {
   const [session] = useSession();
+  const router = useRouter()
 
   async function handleSubscribe() {
     if (!session) {
@@ -17,7 +14,11 @@ function SubscribeButton({ priceId }: SubscribeButtonProps) {
       return;
     }
 
-    // criação da checkout session
+    if (session.activeSubscription) {
+      router.push('/posts');
+      return;
+    }
+
     try {
       const response = await api.post('/subscribe')
 
@@ -30,9 +31,10 @@ function SubscribeButton({ priceId }: SubscribeButtonProps) {
       alert(err.message);
     }
   }
+
   return (
     <button
-      type='button'
+      type="button"
       className={styles.subscribeButton}
       onClick={handleSubscribe}
     >
@@ -40,5 +42,3 @@ function SubscribeButton({ priceId }: SubscribeButtonProps) {
     </button>
   );
 }
-
-export default SubscribeButton;
